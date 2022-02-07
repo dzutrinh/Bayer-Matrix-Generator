@@ -1,0 +1,42 @@
+pc=tmtpc	# put your Pascal compiler here
+		# . tpc for Turbo Pascal
+		# . tmtpc for TMT Pascal
+		# . fpc for Free Pascal
+rm=del		# file remover
+tools=bayer.exe \
+      dither.exe \
+
+all:  bayer.exe dither.exe
+
+bayer.exe: bayer.pas common.inc bayer.inc
+
+	# build the generator
+	@$(pc) bayer.pas
+
+	# cleanup
+	@if exist bayer.sym $(rm) bayer.sym
+	@if exist bayer.fpd $(rm) bayer.fpd
+	@if exist bayer.o $(rm) bayer.o
+
+dither.exe: bayer.exe dither.pas common.inc bitmap.inc
+
+	# generate a level 3 Bayer matrix
+	@bayer matrix.inc 3
+
+	# build the test drive program
+	@$(pc) dither.pas
+
+	# cleaning up
+	@if exist dither.sym $(rm) dither.sym
+	@if exist dither.fpd $(rm) dither.fpd
+	@if exist dither.o $(rm) dither.o
+
+clean:	# clean all previous builds
+	@if exist bayer.exe $(rm) bayer.exe
+	@if exist dither.exe $(rm) dither.exe
+	@if exist bayer.sym $(rm) bayer.sym
+	@if exist bayer.fpd $(rm) bayer.fpd
+	@if exist bayer.o $(rm) bayer.o
+	@if exist dither.sym $(rm) dither.sym
+	@if exist dither.fpd $(rm) dither.fpd
+	@if exist dither.o $(rm) dither.o
