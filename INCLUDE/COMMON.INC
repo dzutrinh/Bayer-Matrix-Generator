@@ -2,7 +2,7 @@
 {$define __BAYER_COMMON_INC__}
 
 {$ifdef VER70}
-{N+}			{ enable numeric processor, BP7 only }
+{$N+}			{ enable numeric processor, BP7 only }
 {$endif}
 
 uses	dos;
