@@ -1,42 +1,77 @@
-pc=tmtpc	# put your Pascal compiler here
-		# . tpc for Turbo Pascal
-		# . tmtpc for TMT Pascal
-		# . fpc for Free Pascal
-rm=del		# file remover
-tools=bayer.exe \
-      dither.exe \
+############################################
+# Makefile for Bayer Matrix Generator repo #
+############################################ 
 
-all:  bayer.exe dither.exe
+pc=tmtpc		# set your compiler here, default is TMT
+			# . tpc for Turbo Pascal
+			# . tmtpc for TMT Pascal
+			# . fpc for Free Pascal
+rm=del			# file remover
+inc=include		# where the include files are
+tex=textures		# textures folder
+t_bayer=bayer		# our 3 tools
+t_dither=dither
+t_gentex=gentex
 
-bayer.exe: bayer.pas common.inc bayer.inc
+all:  $(t_bayer).exe $(t_dither).exe $(t_gentex).exe
+
+$(t_bayer).exe: $(t_bayer).pas \
+		$(inc)\common.inc \
+		$(inc)\bayer.inc \
+		$(inc)\bitmap.inc
 
 	# build the generator
-	@$(pc) bayer.pas
-
+	@$(pc) $(t_bayer).pas
+	
 	# cleanup
-	@if exist bayer.sym $(rm) bayer.sym
-	@if exist bayer.fpd $(rm) bayer.fpd
-	@if exist bayer.o $(rm) bayer.o
+	@if exist $(t_bayer).sym $(rm) $(t_bayer).sym
+	@if exist $(t_bayer).fpd $(rm) $(t_bayer).fpd
+	@if exist $(t_bayer).o   $(rm) $(t_bayer).o
 
-dither.exe: bayer.exe dither.pas common.inc bitmap.inc
+$(t_dither).exe: $(t_dither).pas \
+		 $(t_bayer).exe \
+		 $(inc)\common.inc \
+		 $(inc)\bitmap.inc
 
 	# generate a level 3 Bayer matrix
-	@bayer matrix.inc 3
+	@$(t_bayer).exe include\matrix.inc 3
 
 	# build the test drive program
-	@$(pc) dither.pas
+	@$(pc) $(t_dither).pas
 
 	# cleaning up
-	@if exist dither.sym $(rm) dither.sym
-	@if exist dither.fpd $(rm) dither.fpd
-	@if exist dither.o $(rm) dither.o
+	@if exist $(t_dither).sym $(rm) $(t_dither).sym
+	@if exist $(t_dither).fpd $(rm) $(t_dither).fpd
+	@if exist $(t_dither).o   $(rm) $(t_dither).o
+
+$(t_gentex).exe: $(inc)\common.inc \
+		 $(inc)\bitmap.inc \
+		 $(inc)\bayer.inc
+
+	# build the texture generator program
+	@$(pc) $(t_gentex).pas
+
+	# cleaning up
+	@if exist $(t_gentex).sym $(rm) $(t_gentex).sym
+	@if exist $(t_gentex).fpd $(rm) $(t_gentex).fpd
+	@if exist $(t_gentex).o   $(rm) $(t_gentex).o
 
 clean:	# clean all previous builds
-	@if exist bayer.exe $(rm) bayer.exe
-	@if exist dither.exe $(rm) dither.exe
-	@if exist bayer.sym $(rm) bayer.sym
-	@if exist bayer.fpd $(rm) bayer.fpd
-	@if exist bayer.o $(rm) bayer.o
-	@if exist dither.sym $(rm) dither.sym
-	@if exist dither.fpd $(rm) dither.fpd
-	@if exist dither.o $(rm) dither.o
+	@if exist $(t_bayer).exe  $(rm) $(t_bayer).exe
+	@if exist $(t_dither).exe $(rm) $(t_dither).exe
+	@if exist $(t_gentex).exe  $(rm) $(t_gentex).exe
+
+	@if exist $(t_bayer).sym  $(rm) $(t_bayer).sym
+	@if exist $(t_bayer).fpd  $(rm) $(t_bayer).fpd
+	@if exist $(t_bayer).o    $(rm) $(t_bayer).o
+
+	@if exist $(t_dither).sym $(rm) $(t_dither).sym
+	@if exist $(t_dither).fpd $(rm) $(t_dither).fpd
+	@if exist $(t_dither).o   $(rm) $(t_dither).o
+
+	@if exist $(t_gentex).sym  $(rm) $(t_gentex).sym
+	@if exist $(t_gentex).fpd  $(rm) $(t_gentex).fpd
+	@if exist $(t_gentex).o    $(rm) $(t_gentex).o
+
+	@if exist $(tex)\nul        $(rm) $(tex)\*.*
+	@if exist $(tex)\nul	    rd $(tex)\
